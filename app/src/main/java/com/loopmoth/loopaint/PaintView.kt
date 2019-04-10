@@ -14,6 +14,8 @@ import android.util.DisplayMetrics
 import android.view.MotionEvent
 import android.view.View
 import com.loopmoth.loopaint.FingerPath
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu
+import com.rey.material.widget.Slider
 
 import java.util.ArrayList
 
@@ -24,9 +26,10 @@ class PaintView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     private var mPath: Path? = null
     private val mPaint: Paint
     private val paths = ArrayList<FingerPath>()
-    private var currentColor: Int = 0
-    //private var backgroundColor = DEFAULT_BG_COLOR
-    private var strokeWidth: Int = 0
+    private val removedPaths = ArrayList<FingerPath>()
+    var currentColor: Int = 0
+    var bgColor = DEFAULT_BG_COLOR
+    var strokeWidth: Int = 0
     private var emboss: Boolean = false
     private var blur: Boolean = false
     private val mEmboss: MaskFilter
@@ -34,6 +37,8 @@ class PaintView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     private var mBitmap: Bitmap? = null
     private var mCanvas: Canvas? = null
     private val mBitmapPaint = Paint(Paint.DITHER_FLAG)
+    private var menu: FloatingActionMenu? = null
+    private var slider: Slider? = null
 
     init {
         mPaint = Paint()
@@ -77,15 +82,50 @@ class PaintView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     fun clear() {
-        //backgroundColor = DEFAULT_BG_COLOR
+        bgColor = DEFAULT_BG_COLOR
         paths.clear()
         normal()
         invalidate()
     }
 
+    fun removeLastStroke(){
+        if(paths.count()>0){
+            removedPaths.add(paths[paths.lastIndex])
+            paths.removeAt(paths.lastIndex)
+        }
+        normal()
+        invalidate()
+    }
+
+    fun reviveLastStroke(){
+        if(removedPaths.count()>0){
+            paths.add(removedPaths[removedPaths.lastIndex])
+            removedPaths.removeAt(removedPaths.lastIndex)
+        }
+        normal()
+        invalidate()
+    }
+
+    fun getBitmap(): Bitmap {
+        //this.measure(100, 100);
+        //this.layout(0, 0, 100, 100);
+        this.isDrawingCacheEnabled = true
+        this.buildDrawingCache()
+        val bmp = Bitmap.createBitmap(this.drawingCache)
+        this.isDrawingCacheEnabled = false
+
+
+        return bmp
+    }
+
+    fun changeBackground(){
+        mCanvas!!.save()
+        mCanvas!!.drawColor(bgColor)
+    }
+
     override fun onDraw(canvas: Canvas) {
         canvas.save()
-        mCanvas!!.drawColor(DEFAULT_BG_COLOR)
+        mCanvas!!.drawColor(bgColor)
 
         for (fp in paths) {
             mPaint.color = fp.color
@@ -103,6 +143,11 @@ class PaintView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
         canvas.drawBitmap(mBitmap!!, 0f, 0f, mBitmapPaint)
         canvas.restore()
+    }
+
+    fun hideAllMEnus(menu: FloatingActionMenu, slider: Slider){
+        menu.close(true)
+        slider.visibility = View.INVISIBLE
     }
 
     private fun touchStart(x: Float, y: Float) {
@@ -150,11 +195,12 @@ class PaintView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             }
         }
 
+        performClick()
+
         return true
     }
 
     companion object {
-
         var BRUSH_SIZE = 20
         val DEFAULT_COLOR = Color.RED
         val DEFAULT_BG_COLOR = Color.WHITE

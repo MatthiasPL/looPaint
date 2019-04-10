@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.loopmoth.loopaint">
 
+    <permission android:name="WRITE_EXTERNAL_STORAGE"></permission>
+    <permission android:name="READ_EXTERNAL_STORAGE"></permission>
+
     <application
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
@@ -15,6 +18,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity
+                android:name=".test"
+                android:label="@string/title_activity_test">
         </activity>
     </application>
 
