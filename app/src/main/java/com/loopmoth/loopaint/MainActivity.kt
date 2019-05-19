@@ -17,17 +17,15 @@ import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton
 import kotlinx.android.synthetic.main.activity_main.*
 import top.defaults.colorpicker.ColorPickerPopup
-import java.io.FileOutputStream
 import java.nio.file.Files.exists
 import android.os.Environment.getExternalStorageDirectory
-import java.io.File
-import java.io.IOException
 //import sun.swing.SwingUtilities2.drawRect
 import android.provider.MediaStore.Images.Media.getBitmap
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.io.FileNotFoundException
+import java.io.*
 import java.lang.Exception
+import java.sql.Timestamp
 
 
 class MainActivity : AppCompatActivity() {
@@ -76,6 +74,11 @@ class MainActivity : AppCompatActivity() {
         itemIcon6.setImageResource( R.drawable.ic_save )
         val button6 = itemBuilder6.setContentView(itemIcon6).build()
 
+        val itemBuilder8 = SubActionButton.Builder(this)
+        val itemIcon8 = ImageView(this)
+        itemIcon8.setImageResource( R.drawable.ic_eraser )
+        val button8 = itemBuilder8.setContentView(itemIcon8).build()
+
         val itemBuilder7 = SubActionButton.Builder(this)
         val itemIcon7 = ImageView(this)
         itemIcon7.setImageResource( R.drawable.ic_clear_button )
@@ -87,6 +90,7 @@ class MainActivity : AppCompatActivity() {
             .addSubActionView(button3)
             .addSubActionView(button5)
             .addSubActionView(button4)
+            .addSubActionView(button8)
             .addSubActionView(button6)
             .addSubActionView(button7)
             .setStartAngle(90)
@@ -169,13 +173,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         button6.setOnClickListener {
-            Toast.makeText(this@MainActivity, "Saving", Toast.LENGTH_SHORT).show()
+            paintView.saveAsImage(Timestamp(System.currentTimeMillis()).toString(), this@MainActivity)
+            Toast.makeText(this@MainActivity, "Saving as " + Timestamp(System.currentTimeMillis()).toString(), Toast.LENGTH_LONG).show()
         }
 
         button7.setOnClickListener {
             paintView.clear()
             actionMenu.close(true)
             slider.visibility = View.INVISIBLE
+        }
+
+        button8.setOnClickListener {
+            paintView.currentColor = paintView.bgColor
         }
 
         slider.setOnPositionChangeListener { view, fromUser, oldPos, newPos, oldValue, newValue ->
@@ -188,154 +197,6 @@ class MainActivity : AppCompatActivity() {
             actionMenu.close(true)
             slider.visibility = View.INVISIBLE
         }
-
-
-
-//            val folder = File(Environment.getExternalStorageDirectory().toString())
-//            var success = false
-//            if (!folder.exists()) {
-//                success = folder.mkdirs()
-//            }
-//
-//            println(success.toString() + "folder")
-//
-//            val file = File(Environment.getExternalStorageDirectory().toString() + "/sample.JPEG")
-//
-//            if (!file.exists()) {
-//                try {
-//                    success = file.createNewFile()
-//                } catch (e: IOException) {
-//                    e.printStackTrace()
-//                }
-//
-//            }
-//
-//            println(success.toString() + "file")
-//
-//            var ostream : FileOutputStream? = null;
-//            try
-//            {
-//                ostream = FileOutputStream(file)
-//
-//                System.out.println(ostream);
-//
-//                var save: Bitmap? = paintView.getBitmap()
-//                if(save == null) {
-//                    System.out.println("NULL bitmap save\n");
-//                }
-//                save!!.compress(Bitmap.CompressFormat.PNG, 100, ostream);
-//                //bitmap.compress(Bitmap.CompressFormat.PNG, 100, ostream);
-//                ostream.flush();
-//                ostream.close();
-//            }catch (e: NullPointerException)
-//            {
-//                e.printStackTrace();
-//                Toast.makeText(getApplicationContext(), "Null error", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            catch (e: NullPointerException)
-//            {
-//                e.printStackTrace();
-//                Toast.makeText(getApplicationContext(), "File error", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            catch (e: NullPointerException)
-//            {
-//                e.printStackTrace();
-//                Toast.makeText(getApplicationContext(), "IO error", Toast.LENGTH_SHORT).show();
-//            }
-
-//            if (ContextCompat.checkSelfPermission(this,
-//                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                != PackageManager.PERMISSION_GRANTED) {
-//
-//                // Permission is not granted
-//                // Should we show an explanation?
-//                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//                    // Show an explanation to the user *asynchronously* -- don't block
-//                    // this thread waiting for the user's response! After the user
-//                    // sees the explanation, try again to request the permission.
-//                } else {
-//                    // No explanation needed, we can request the permission.
-//                    //ActivityCompat.requestPermissions(this,
-//                    //    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-//                    //    MY_PERMISSIONS_REQUEST_READ_CONTACTS)
-//
-//                    // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-//                    // app-defined int constant. The callback method gets the
-//                    // result of the request.
-//                }
-//            } else {
-//                // Permission has already been granted
-//            }
-//
-//            val folder = File(Environment.getExternalStorageDirectory().toString())
-//            var success = false
-//            if (!folder.exists()) {
-//                success = folder.mkdirs()
-//            }
-//
-//            println(success.toString() + "folder")
-//
-//            val file = File(Environment.getExternalStorageDirectory().toString() + "/sample.png")
-//
-//            if (!file.exists()) {
-//                try {
-//                    success = file.createNewFile()
-//                } catch (e: IOException) {
-//                    e.printStackTrace()
-//                }
-//
-//            }
-//
-//            println(success.toString() + "file")
-//
-//
-//            var ostream: FileOutputStream? = null
-//            try {
-//                ostream = FileOutputStream(file)
-//
-//                println("looPaint" + ostream)
-//                //val targetView = PaintView
-//
-//                // myDrawView.setDrawingCacheEnabled(true);
-//                //   Bitmap save = Bitmap.createBitmap(myDrawView.getDrawingCache());
-//                //   myDrawView.setDrawingCacheEnabled(false);
-//                // copy this bitmap otherwise distroying the cache will destroy
-//                // the bitmap for the referencing drawable and you'll not
-//                // get the captured view
-//                //   Bitmap save = b1.copy(Bitmap.Config.ARGB_8888, false);
-//                //BitmapDrawable d = new BitmapDrawable(b);
-//                //canvasView.setBackgroundDrawable(d);
-//                //   myDrawView.destroyDrawingCache();
-//                // Bitmap save = myDrawView.getBitmapFromMemCache("0");
-//                // myDrawView.setDrawingCacheEnabled(true);
-//                //Bitmap save = myDrawView.getDrawingCache(false);
-//                val well = paintView.getBitmap()
-//                val save = Bitmap.createBitmap(320, 480, Bitmap.Config.ARGB_8888)
-//                val paint = Paint()
-//                paint.setColor(Color.WHITE)
-//                val now = Canvas(save)
-//                now.drawRect(Rect(0, 0, 320, 480), paint)
-//                now.drawBitmap(well, Rect(0, 0, well.getWidth(), well.getHeight()), Rect(0, 0, 320, 480), null)
-//
-//                // Canvas now = new Canvas(save);
-//                //myDrawView.layout(0, 0, 100, 100);
-//                //myDrawView.draw(now);
-//                if (save == null) {
-//                    println("NULL bitmap save\n")
-//                }
-//                save!!.compress(Bitmap.CompressFormat.PNG, 100, ostream)
-//                //bitmap.compress(Bitmap.CompressFormat.PNG, 100, ostream);
-//                //ostream.flush();
-//                //ostream.close();
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//                Toast.makeText(applicationContext, e.toString(), Toast.LENGTH_SHORT).show()
-//            }
-//
-//        }
     }
 
 }

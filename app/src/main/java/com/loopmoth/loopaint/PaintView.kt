@@ -1,5 +1,6 @@
 package com.loopmoth.loopaint
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BlurMaskFilter
@@ -9,6 +10,7 @@ import android.graphics.EmbossMaskFilter
 import android.graphics.MaskFilter
 import android.graphics.Paint
 import android.graphics.Path
+import android.os.Environment
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.view.MotionEvent
@@ -16,6 +18,10 @@ import android.view.View
 import com.loopmoth.loopaint.FingerPath
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu
 import com.rey.material.widget.Slider
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
+import java.lang.Exception
 
 import java.util.ArrayList
 
@@ -205,5 +211,31 @@ class PaintView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         val DEFAULT_COLOR = Color.RED
         val DEFAULT_BG_COLOR = Color.WHITE
         private val TOUCH_TOLERANCE = 4f
+    }
+
+    fun saveAsImage(filename : String, activity: Activity){
+
+        val bitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val dir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        if(!dir.exists()){
+            dir.mkdirs()
+        }
+        val output = File(dir,"$filename.jpg")
+        var os : OutputStream? = null
+
+        try{
+            os = FileOutputStream(output)
+            this.draw(canvas)
+            bitmap.compress(Bitmap.CompressFormat.JPEG,100,os)
+
+            os!!.flush()
+            os.close()
+        }
+        catch(e : Exception){
+            e.printStackTrace()
+        }
+
+
     }
 }
